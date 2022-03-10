@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.fh.mapper.dsno1.fhoa.AttendanceMapper">
+	
+	<!--表名 -->
+	<sql id="tableName">
+		OA_ATTENDANCE
+	</sql>
+	
+	<!--数据字典表名 -->
+	<sql id="dicTableName">
+		SYS_DICTIONARIES
+	</sql>
+	
+	<!-- 字段 -->
+	<sql id="Field">
+		f.NAME,	
+		f.DEPARTMENT,	
+		f.STAFF_ID,	
+		f.BIANMA,	
+		f.CATEGORY,	
+		f.DAYS,	
+		f.HOURS,	
+		f.REMARKS,
+		f.CTIME,
+		f.ATTENDANCE_ID
+	</sql>
+	
+	<!-- 字段用于新增 -->
+	<sql id="Field2">
+		NAME,	
+		DEPARTMENT,	
+		STAFF_ID,	
+		BIANMA,	
+		CATEGORY,	
+		DAYS,	
+		HOURS,	
+		REMARKS,
+		CTIME,
+		ATTENDANCE_ID
+	</sql>
+	
+	<!-- 字段值 -->
+	<sql id="FieldValue">
+		#{NAME},	
+		#{DEPARTMENT},	
+		#{STAFF_ID},	
+		#{BIANMA},	
+		#{CATEGORY},	
+		#{DAYS},	
+		#{HOURS},	
+		#{REMARKS},
+		#{CTIME},
+		#{ATTENDANCE_ID}
+	</sql>
+	
+	<!-- 新增-->
+	<insert id="save" parameterType="pd">
+		insert into 
+	<include refid="tableName"></include>
+		(
+	<include refid="Field2"></include>
+		) values (
+	<include refid="FieldValue"></include>
+		)
+	</insert>
+	
+	<!-- 删除-->
+	<delete id="delete" parameterType="pd">
+		delete from
+		<include refid="tableName"></include>
+		where 
+			ATTENDANCE_ID = #{ATTENDANCE_ID}
+	</delete>
+	
+	<!-- 修改 -->
+	<update id="edit" parameterType="pd">
+		update
+		<include refid="tableName"></include>
+		set 
+			NAME = #{NAME},
+			DEPARTMENT = #{DEPARTMENT},
+			STAFF_ID = #{STAFF_ID},
+			BIANMA = #{BIANMA},
+			CATEGORY = #{CATEGORY},
+			DAYS = #{DAYS},
+			HOURS = #{HOURS},
+			REMARKS = #{REMARKS},
+			CTIME = #{CTIME},
+			ATTENDANCE_ID = ATTENDANCE_ID
+		where 
+			ATTENDANCE_ID = #{ATTENDANCE_ID}
+	</update>
+	
+	<!-- 通过ID获取数据 -->
+	<select id="findById" parameterType="pd" resultType="pd">
+		select 
+		<include refid="Field"></include>
+		from 
+		<include refid="tableName"></include> f
+		where 
+			f.ATTENDANCE_ID = #{ATTENDANCE_ID}
+	</select>
+	
+	<!-- 列表 -->
+	<select id="datalistPage" parameterType="page" resultType="pd">
+		select
+			d5.BIANMA BIANMA5,
+			d5.NAME DNAME5,
+		<include refid="Field"></include>
+		from 
+		<include refid="tableName"></include> f
+			left join 
+			<include refid="dicTableName"></include> d5
+			on f.CATEGORY = d5.BIANMA
+		where 1=1
+		<if test="pd.KEYWORDS != null and pd.KEYWORDS != ''"><!-- 关键词检索 -->
+			and
+				(
+					f.NAME LIKE CONCAT(CONCAT('%', #{pd.KEYWORDS}),'%')
+					 or 
+					f.BIANMA LIKE CONCAT(CONCAT('%', #{pd.KEYWORDS}),'%')
+				)
+		</if>
+		<if test="pd.lastStart!=null and pd.lastStart!=''"><!-- 开始时间检索 -->
+			and f.CTIME &gt;= #{pd.lastStart} 
+		</if>
+		<if test="pd.lastEnd!=null and pd.lastEnd!=''"><!-- 结束时间检索 -->
+			and f.CTIME &lt;= #{pd.lastEnd} 
+		</if>
+		<if test="pd.CATEGORY != null and pd.CATEGORY != ''"><!-- 类别 -->
+			and f.CATEGORY = #{pd.CATEGORY}
+		</if>
+	</select>
+	
+	<!-- 列表(全部) -->
+	<select id="listAll" parameterType="pd" resultType="pd">
+		select
+		<include refid="Field"></include>
+		from 
+		<include refid="tableName"></include> f
+	</select>
+	
+	<!-- 批量删除 -->
+	<delete id="deleteAll" parameterType="String">
+		delete from
+		<include refid="tableName"></include>
+		where 
+			ATTENDANCE_ID in
+		<foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+                 #{item}
+		</foreach>
+	</delete>
+	
+	
+</mapper>

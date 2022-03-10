@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.fh.mapper.dsno1.fhoa.ChangeDepartmentMapper">
+	
+	<!--表名 -->
+	<sql id="tableName">
+		OA_CHANGE_DEPARTMENT
+	</sql>
+	
+	<!-- 字段 -->
+	<sql id="Field">
+		ID,
+		OLD_DEPARTMENT,
+		OLD_JOBTYPE,
+		NEW_DEPARTMENT,
+		NEW_JOBTYPE,
+		STAFF_ID,
+		USERID,
+		STATUS,
+		COMMIT_TIME,
+		CHECK_TIME,
+		CHECK_USERID
+	</sql>
+	
+	<!-- 字段值 -->
+	<sql id="FieldValue">
+		#{ID},
+		#{OLD_DEPARTMENT},
+		#{OLD_JOBTYPE},
+		#{NEW_DEPARTMENT},
+		#{NEW_JOBTYPE},
+		#{STAFF_ID},
+		#{USERID},
+		#{STATUS},
+		#{COMMIT_TIME},
+		#{CHECK_TIME},
+		#{CHECK_USERID}
+	</sql>
+	
+	<!-- 通过ID获取数据 -->
+	<select id="findById" parameterType="String" resultType="pd">
+		select 
+			<include refid="Field"></include>
+		from 
+		<include refid="tableName"></include>
+		where 
+		<if test="ID !=null and ID != ''">
+			ID = #{ID}
+		</if>
+	</select>
+	
+	<!-- 通过STAFF_ID查询该员工部门变更历史 -->
+	<select id="findChangeHistoryByStaffId" parameterType="String" resultType="pd">
+		select 
+			<include refid="Field"></include>
+		from 
+		<include refid="tableName"></include> A
+		where 1=1
+		<if test="STAFF_ID !=null and STAFF_ID != ''">
+		    and
+			A.STAFF_ID = #{STAFF_ID}
+		</if>
+		ORDER BY A.ID DESC
+		limit 1
+	</select>
+	
+	<!-- 新增-->
+	<insert id="save" parameterType="pd">
+		insert into 
+	<include refid="tableName"></include>
+		(
+	<include refid="Field"></include>
+		) values (
+	<include refid="FieldValue"></include>
+		)
+	</insert>
+	
+	<!-- 保存修改 -->
+	<update id="edit" parameterType="pd">
+		update 
+		<include refid="tableName"></include>
+		set 
+			STATUS = #{STATUS},
+			CHECK_TIME = #{CHECK_TIME},
+			CHECK_USERID = #{CHECK_USERID}
+		where ID = #{ID}
+	</update>
+	
+	<!-- 查询指定部门下未审批的申请用户 -->
+	<select id="notApprovedChangelistPage" parameterType="page" resultType="pd" >
+		SELECT
+			OCD.ID AS ID,
+			OCD.USERID AS USER_ID,
+			OCD.STAFF_ID AS STAFF_ID,
+			SU.`NAME` AS `NAME`,
+			OD1.`NAME` AS OLD_JOBTYPE_NAME,
+			OD2.`NAME` AS OLD_DEPARTMENT_NAME,
+			OD3.`NAME` AS NEW_JOBTYPE_NAME,
+			OD4.`NAME` AS NEW_DEPARTMENT_NAME,
+			SU.BZ AS BZ
+		FROM
+		<include refid="tableName"></include> OCD
+			LEFT JOIN sys_user SU ON OCD.USERID = SU.USERNAME
+			LEFT JOIN oa_department OD1 ON OCD.OLD_JOBTYPE = OD1.DEPARTMENT_ID
+			LEFT JOIN oa_department OD2 ON OCD.OLD_DEPARTMENT = OD2.DEPARTMENT_ID
+			LEFT JOIN oa_department OD3 ON OCD.NEW_JOBTYPE = OD3.DEPARTMENT_ID
+			LEFT JOIN oa_department OD4 ON OCD.NEW_DEPARTMENT = OD4.DEPARTMENT_ID
+		WHERE
+			1=1
+			AND OCD.`STATUS` = '1'
+				<if test="pd.DEPARTMENT_ID!= null and pd.DEPARTMENT_ID != ''">
+					AND (OCD.NEW_DEPARTMENT = #{pd.DEPARTMENT_ID} 
+							OR OCD.NEW_DEPARTMENT IN ${pd.DEPARTMENT_IDS})
+							<!-- #引用会在变量前后自动添加'',$引用不会 -->
+				</if>
+				<!-- 部门查询条件 -->
+				<if test="pd.KEYWORDS!= null and pd.KEYWORDS != ''">
+					and
+						(
+							 SU.USERNAME LIKE CONCAT(CONCAT('%', #{pd.KEYWORDS}),'%')
+							 or 
+							 OD1.`NAME` LIKE CONCAT(CONCAT('%', #{pd.KEYWORDS}),'%') 
+							 or
+							 OD3.`NAME` LIKE CONCAT(CONCAT('%', #{pd.KEYWORDS}),'%')
+							 or
+							 OD2.`NAME` LIKE CONCAT(CONCAT('%', #{pd.KEYWORDS}),'%')
+							 or
+							 OD4.`NAME` LIKE CONCAT(CONCAT('%', #{pd.KEYWORDS}),'%')
+						)
+				</if>
+				<!-- 关键词检索 -->
+			order by OCD.ID
+	</select>
+</mapper>

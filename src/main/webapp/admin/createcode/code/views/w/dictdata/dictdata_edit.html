@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>FSCI</title>
+    <!-- HTML5 Shim and Respond.js IE10 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 10]>
+		<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+		<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+		<![endif]-->
+    <!-- Meta -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="author" content="fsci" />
+
+    <link rel="icon" href="../../../assets/images/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="../../../assets/fonts/fontawesome/css/fontawesome-all.min.css">
+    <link rel="stylesheet" href="../../../assets/plugins/animation/css/animate.min.css">
+    <link rel="stylesheet" href="../../../assets/css/style.css">
+    
+    <!-- 日期插件 -->
+    <link rel="stylesheet" href="../../../assets/plugins/material-datetimepicker/css/bootstrap-material-datetimepicker.css">
+    
+    <!-- select插件 -->
+    <link rel="stylesheet" href="../../../assets/plugins/select2/css/select2.min.css">
+    <link rel="stylesheet" href="../../../assets/plugins/multi-select/css/multi-select.css">
+    
+    <!-- vue -->
+	<script src="../../../assets/js-vue/vue.js"></script>
+    <!--全局配置-->
+    <script src="../../../assets/js-v/config.js"></script>
+
+</head>
+
+<body style="background-color: white">
+    
+    <!-- [加载状态 ] start -->
+    <div class="loader-bg">
+        <div class="loader-track">
+            <div class="loader-fill"></div>
+        </div>
+    </div>
+    <!-- [ 加载状态  ] End -->
+
+    <!-- [ 主内容区 ] start -->
+        <div class="pcoded-wrapper" id="app">
+            <div class="pcoded-content">
+                <div class="pcoded-inner-content">
+                    <div class="main-body">
+                        <div class="page-wrapper">
+                            <!-- [ Main Content ] start -->
+                            <div class="row">
+					
+								<div style="width: 100%;">
+									<div id="showform">
+														            <div class="input-group input-group-sm mb-3" style="margin-top: -10px;">
+		                                    <div class="input-group-prepend">
+		                                        <span class="input-group-text" style="width: 79px;"><span style="width: 100%;">字典编码</span></span>
+		                                    </div>
+		                                    <input type="text" class="form-control" ref="DICT_CODE" id="DICT_CODE" v-model="pd.DICT_CODE" maxlength="64" placeholder="这里输入字典编码" title="字典编码">
+		                                </div>
+							            <div class="input-group input-group-sm mb-3" style="margin-top: -10px;">
+		                                    <div class="input-group-prepend">
+		                                        <span class="input-group-text" style="width: 79px;"><span style="width: 100%;">父级编号</span></span>
+		                                    </div>
+		                                    <input type="text" class="form-control" ref="PARENT_CODE" id="PARENT_CODE" v-model="pd.PARENT_CODE" maxlength="64" placeholder="这里输入父级编号" title="父级编号">
+		                                </div>
+							            <div class="input-group input-group-sm mb-3" style="margin-top: -10px;">
+		                                    <div class="input-group-prepend">
+		                                        <span class="input-group-text" style="width: 79px;"><span style="width: 100%;">所有父级编号</span></span>
+		                                    </div>
+		                                    <input type="text" class="form-control" ref="PARENT_CODES" id="PARENT_CODES" v-model="pd.PARENT_CODES" maxlength="1000" placeholder="这里输入所有父级编号" title="所有父级编号">
+		                                </div>
+							            <div class="input-group input-group-sm mb-3" style="margin-top: -10px;">
+		                                    <div class="input-group-prepend">
+		                                        <span class="input-group-text" style="width: 79px;"><span style="width: 100%;">字典标签</span></span>
+		                                    </div>
+		                                    <input type="text" class="form-control" ref="DICT_LABEL" id="DICT_LABEL" v-model="pd.DICT_LABEL" maxlength="100" placeholder="这里输入字典标签" title="字典标签">
+		                                </div>
+							            <div class="input-group input-group-sm mb-3" style="margin-top: -10px;">
+		                                    <div class="input-group-prepend">
+		                                        <span class="input-group-text" style="width: 79px;"><span style="width: 100%;">字典键值</span></span>
+		                                    </div>
+		                                    <input type="text" class="form-control" ref="DICT_VALUE" id="DICT_VALUE" v-model="pd.DICT_VALUE" maxlength="100" placeholder="这里输入字典键值" title="字典键值">
+		                                </div>
+							            <div class="input-group input-group-sm mb-3" style="margin-top: -10px;">
+		                                    <div class="input-group-prepend">
+		                                        <span class="input-group-text" style="width: 79px;"><span style="width: 100%;">字典类型</span></span>
+		                                    </div>
+		                                    <input type="text" class="form-control" ref="DICT_TYPE" id="DICT_TYPE" v-model="pd.DICT_TYPE" maxlength="100" placeholder="这里输入字典类型" title="字典类型">
+		                                </div>
+							            <div class="input-group input-group-sm mb-3" style="margin-top: -10px;">
+		                                    <div class="input-group-prepend">
+		                                        <span class="input-group-text" style="width: 79px;"><span style="width: 100%;">字典描述</span></span>
+		                                    </div>
+		                                    <input type="text" class="form-control" ref="DESCRIPTION" id="DESCRIPTION" v-model="pd.DESCRIPTION" maxlength="500" placeholder="这里输入字典描述" title="字典描述">
+		                                </div>
+							            <div class="input-group input-group-sm mb-3" style="margin-top: -10px;">
+		                                    <div class="input-group-prepend">
+		                                        <span class="input-group-text" style="width: 79px;"><span style="width: 100%;">状态（0正常 1删除 2停用）</span></span>
+		                                    </div>
+		                                    <input type="text" class="form-control" ref="STATUS" id="STATUS" v-model="pd.STATUS" maxlength="1" placeholder="这里输入状态（0正常 1删除 2停用）" title="状态（0正常 1删除 2停用）">
+		                                </div>
+							            <div class="input-group input-group-sm mb-3" style="margin-top: -10px;">
+		                                    <div class="input-group-prepend">
+		                                        <span class="input-group-text" style="width: 79px;"><span style="width: 100%;">创建者</span></span>
+		                                    </div>
+		                                    <input type="text" class="form-control" ref="CREATE_BY" id="CREATE_BY" v-model="pd.CREATE_BY" maxlength="64" placeholder="这里输入创建者" title="创建者">
+		                                </div>
+							            <div class="input-group input-group-sm mb-3" style="margin-top: -10px;">
+		                                    <div class="input-group-prepend">
+		                                        <span class="input-group-text" style="width: 79px;"><span style="width: 100%;">创建时间</span></span>
+		                                    </div>
+		                                    <input type="text" class="form-control date" ref="CREATE_DATE" id="CREATE_DATE" maxlength="32" placeholder="这里输入创建时间" title="创建时间">
+		                                </div>
+							            <div class="input-group input-group-sm mb-3" style="margin-top: -10px;">
+		                                    <div class="input-group-prepend">
+		                                        <span class="input-group-text" style="width: 79px;"><span style="width: 100%;">更新者</span></span>
+		                                    </div>
+		                                    <input type="text" class="form-control" ref="UPDATE_BY" id="UPDATE_BY" v-model="pd.UPDATE_BY" maxlength="64" placeholder="这里输入更新者" title="更新者">
+		                                </div>
+							            <div class="input-group input-group-sm mb-3" style="margin-top: -10px;">
+		                                    <div class="input-group-prepend">
+		                                        <span class="input-group-text" style="width: 79px;"><span style="width: 100%;">更新时间</span></span>
+		                                    </div>
+		                                    <input type="text" class="form-control date" ref="UPDATE_DATE" id="UPDATE_DATE" maxlength="32" placeholder="这里输入更新时间" title="更新时间">
+		                                </div>
+							            <div class="input-group input-group-sm mb-3" style="margin-top: -10px;">
+		                                    <div class="input-group-prepend">
+		                                        <span class="input-group-text" style="width: 79px;"><span style="width: 100%;">备注信息</span></span>
+		                                    </div>
+		                                    <input type="text" class="form-control" ref="REMARKS" id="REMARKS" v-model="pd.REMARKS" maxlength="500" placeholder="这里输入备注信息" title="备注信息">
+		                                </div>
+							            <div class="input-group" style="margin-top:10px;background-color: white" >
+							            	<span style="width: 100%;text-align: center;">
+							            		<a class="btn btn-light btn-sm" v-on:click="save">保存</a>
+							            		<a class="btn btn-light btn-sm" onclick="top.Dialog.close()">取消</a>
+							            	</span>
+							            </div>
+							       </div>
+						           <!-- [加载状态 ] start -->
+								    <div id="jiazai" style="display:none;margin-top:50px;">
+								    	<div class="d-flex justify-content-center">
+	                                        <div class="spinner-border" style="width: 3rem; height: 3rem;" role="status">
+                                                <span class="sr-only">Loading...</span>
+                                            </div>
+                                        </div>
+                                    </div>
+								    <!-- [ 加载状态  ] End -->
+								</div>
+	    
+                            </div>
+                            <!-- [ Main Content ] end -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <!-- [ 主内容区 ] end -->
+    
+<script type="text/javascript" src="../../../assets/js/jquery-1.7.2.js"></script>
+<script type="text/javascript" src="../../../assets/js/pre-loader.js"></script>
+<script src="../../../assets/plugins/sweetalert/js/sweetalert.min.js"></script>
+
+<!-- 日期插件 -->
+<script src="../../../assets/js/pages/moment-with-locales.min.js"></script>
+<script src="../../../assets/plugins/material-datetimepicker/js/bootstrap-material-datetimepicker.js"></script>
+<script src="../../../assets/js/pages/form-picker-custom.js"></script>
+
+<!-- select插件 -->
+<script src="../../../assets/plugins/select2/js/select2.full.min.js"></script>
+<script src="../../../assets/plugins/multi-select/js/jquery.quicksearch.js"></script>
+<script src="../../../assets/plugins/multi-select/js/jquery.multi-select.js"></script>
+<script src="../../../assets/js/pages/form-select-custom.js"></script>
+
+<!-- 表单验证提示 -->
+<script src="../../../assets/js/jquery.tips.js"></script>
+
+<script type="text/javascript">
+
+var vm = new Vue({
+	el: '#app',
+	
+	data:{
+		DICTDATA_ID: '',	//主键ID
+		pd: [],						//存放字段参数
+		msg:'add'
+    },
+	
+	methods: {
+		
+        //初始执行
+        init() {
+        	var FID = this.getUrlKey('FID');	//当接收过来的FID不为null时,表示此页面是修改进来的
+        	if(null != FID){
+        		this.msg = 'edit';
+        		this.DICTDATA_ID = FID;
+        		this.getData();
+        	}
+        	setTimeout(function(){
+        		vm.getDict();
+            },200);
+        },
+        
+        //去保存
+    	save: function (){
+    		
+			if(this.pd.DICT_CODE == '' || this.pd.DICT_CODE == undefined){
+				$("#DICT_CODE").tips({
+					side:3,
+		            msg:'请输入字典编码',
+		            bg:'#AE81FF',
+		            time:2
+		        });
+				this.pd.DICT_CODE = '';
+				this.$refs.DICT_CODE.focus();
+			return false;
+			}
+			if(this.pd.PARENT_CODE == '' || this.pd.PARENT_CODE == undefined){
+				$("#PARENT_CODE").tips({
+					side:3,
+		            msg:'请输入父级编号',
+		            bg:'#AE81FF',
+		            time:2
+		        });
+				this.pd.PARENT_CODE = '';
+				this.$refs.PARENT_CODE.focus();
+			return false;
+			}
+			if(this.pd.PARENT_CODES == '' || this.pd.PARENT_CODES == undefined){
+				$("#PARENT_CODES").tips({
+					side:3,
+		            msg:'请输入所有父级编号',
+		            bg:'#AE81FF',
+		            time:2
+		        });
+				this.pd.PARENT_CODES = '';
+				this.$refs.PARENT_CODES.focus();
+			return false;
+			}
+			if(this.pd.DICT_LABEL == '' || this.pd.DICT_LABEL == undefined){
+				$("#DICT_LABEL").tips({
+					side:3,
+		            msg:'请输入字典标签',
+		            bg:'#AE81FF',
+		            time:2
+		        });
+				this.pd.DICT_LABEL = '';
+				this.$refs.DICT_LABEL.focus();
+			return false;
+			}
+			if(this.pd.DICT_VALUE == '' || this.pd.DICT_VALUE == undefined){
+				$("#DICT_VALUE").tips({
+					side:3,
+		            msg:'请输入字典键值',
+		            bg:'#AE81FF',
+		            time:2
+		        });
+				this.pd.DICT_VALUE = '';
+				this.$refs.DICT_VALUE.focus();
+			return false;
+			}
+			if(this.pd.DICT_TYPE == '' || this.pd.DICT_TYPE == undefined){
+				$("#DICT_TYPE").tips({
+					side:3,
+		            msg:'请输入字典类型',
+		            bg:'#AE81FF',
+		            time:2
+		        });
+				this.pd.DICT_TYPE = '';
+				this.$refs.DICT_TYPE.focus();
+			return false;
+			}
+			if(this.pd.DESCRIPTION == '' || this.pd.DESCRIPTION == undefined){
+				$("#DESCRIPTION").tips({
+					side:3,
+		            msg:'请输入字典描述',
+		            bg:'#AE81FF',
+		            time:2
+		        });
+				this.pd.DESCRIPTION = '';
+				this.$refs.DESCRIPTION.focus();
+			return false;
+			}
+			if(this.pd.STATUS == '' || this.pd.STATUS == undefined){
+				$("#STATUS").tips({
+					side:3,
+		            msg:'请输入状态（0正常 1删除 2停用）',
+		            bg:'#AE81FF',
+		            time:2
+		        });
+				this.pd.STATUS = '';
+				this.$refs.STATUS.focus();
+			return false;
+			}
+			if(this.pd.CREATE_BY == '' || this.pd.CREATE_BY == undefined){
+				$("#CREATE_BY").tips({
+					side:3,
+		            msg:'请输入创建者',
+		            bg:'#AE81FF',
+		            time:2
+		        });
+				this.pd.CREATE_BY = '';
+				this.$refs.CREATE_BY.focus();
+			return false;
+			}
+			this.pd.CREATE_DATE = $("#CREATE_DATE").val();
+			if(this.pd.CREATE_DATE == '' || this.pd.CREATE_DATE == undefined){
+				$("#CREATE_DATE").tips({
+					side:3,
+		            msg:'请输入创建时间',
+		            bg:'#AE81FF',
+		            time:2
+		        });
+				this.pd.CREATE_DATE = '';
+				this.$refs.CREATE_DATE.focus();
+			return false;
+			}
+			if(this.pd.UPDATE_BY == '' || this.pd.UPDATE_BY == undefined){
+				$("#UPDATE_BY").tips({
+					side:3,
+		            msg:'请输入更新者',
+		            bg:'#AE81FF',
+		            time:2
+		        });
+				this.pd.UPDATE_BY = '';
+				this.$refs.UPDATE_BY.focus();
+			return false;
+			}
+			this.pd.UPDATE_DATE = $("#UPDATE_DATE").val();
+			if(this.pd.UPDATE_DATE == '' || this.pd.UPDATE_DATE == undefined){
+				$("#UPDATE_DATE").tips({
+					side:3,
+		            msg:'请输入更新时间',
+		            bg:'#AE81FF',
+		            time:2
+		        });
+				this.pd.UPDATE_DATE = '';
+				this.$refs.UPDATE_DATE.focus();
+			return false;
+			}
+			if(this.pd.REMARKS == '' || this.pd.REMARKS == undefined){
+				$("#REMARKS").tips({
+					side:3,
+		            msg:'请输入备注信息',
+		            bg:'#AE81FF',
+		            time:2
+		        });
+				this.pd.REMARKS = '';
+				this.$refs.REMARKS.focus();
+			return false;
+			}
+    		
+    		$("#showform").hide();
+    		$("#jiazai").show();
+    		
+            //发送 post 请求提交保存
+            $.ajax({
+	            	xhrFields: {
+	                    withCredentials: true
+	                },
+					type: "POST",
+					url: httpurl+'dictdata/'+this.msg,
+			    	data: {DICTDATA_ID:this.DICTDATA_ID,
+				    DICT_CODE:this.pd.DICT_CODE,
+				    PARENT_CODE:this.pd.PARENT_CODE,
+				    PARENT_CODES:this.pd.PARENT_CODES,
+				    DICT_LABEL:this.pd.DICT_LABEL,
+				    DICT_VALUE:this.pd.DICT_VALUE,
+				    DICT_TYPE:this.pd.DICT_TYPE,
+				    DESCRIPTION:this.pd.DESCRIPTION,
+				    STATUS:this.pd.STATUS,
+				    CREATE_BY:this.pd.CREATE_BY,
+				    CREATE_DATE:this.pd.CREATE_DATE,
+				    UPDATE_BY:this.pd.UPDATE_BY,
+				    UPDATE_DATE:this.pd.UPDATE_DATE,
+				    REMARKS:this.pd.REMARKS,
+			    	tm:new Date().getTime()},
+					dataType:"json",
+					success: function(data){
+                        if("success" == data.result){
+                        	swal("", "保存成功", "success");
+                        	setTimeout(function(){
+                        		top.Dialog.close();//关闭弹窗
+                            },1000);
+                        }else if ("exception" == data.result){
+                        	showException("w",data.exception);//显示异常
+                        	$("#showform").show();
+                    		$("#jiazai").hide();
+                        }
+                    }
+				}).done().fail(function(){
+                   swal("登录失效!", "请求服务器无响应，稍后再试", "warning");
+                   $("#showform").show();
+           		   $("#jiazai").hide();
+                });
+    	},
+    	
+    	//根据主键ID获取数据
+    	getData: function(){
+    		//发送 post 请求
+            $.ajax({
+            	xhrFields: {
+                    withCredentials: true
+                },
+				type: "POST",
+				url: httpurl+'dictdata/goEdit',
+		    	data: {DICTDATA_ID:this.DICTDATA_ID,tm:new Date().getTime()},
+				dataType:"json",
+				success: function(data){
+                     if("success" == data.result){
+                     	vm.pd = data.pd;							//参数map
+						$("#CREATE_DATE").val(data.pd.CREATE_DATE);
+						$("#UPDATE_DATE").val(data.pd.UPDATE_DATE);
+                     }else if ("exception" == data.result){
+                     	showException("w",data.exception);	//显示异常
+                     	$("#showform").show();
+                 		$("#jiazai").hide();
+                     }
+                  }
+			}).done().fail(function(){
+                  swal("登录失效!", "请求服务器无响应，稍后再试", "warning");
+                  $("#showform").show();
+          		  $("#jiazai").hide();
+               });
+    	},
+    	
+    	//获取数据字典数据
+		getDict: function (){
+		},
+    	
+    	//根据url参数名称获取参数值
+        getUrlKey: function (name) {
+            return decodeURIComponent(
+                (new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.href) || [, ""])[1].replace(/\+/g, '%20')) || null;
+        }
+        
+	},
+	
+	mounted(){
+        this.init();
+    }
+})
+				
+</script>
+
+</body>
+</html>

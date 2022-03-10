@@ -1,0 +1,363 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.fh.mapper.dsno1.sbxj.sbxjQueryMapper">
+	<!-- 列表 -->
+	<select id="DataStatisticslistPage" parameterType="page"
+		resultType="pd">
+		SELECT
+		XM.ID XJ_ID,
+		xe.NAME AS EQUIPMENT_NAME,
+		SD1.BZ type_name,
+		xe.sb_no,
+		xm.CHECK_DATE,
+		od.NAME AS dept_name,
+		xm.MARK1,
+		xm.CHECK_USER AS user_name
+		FROM
+		xj_main xm
+		LEFT JOIN
+		xj_equipment xe ON xm.EQUIPMENT_ID = xe.SB_NO
+		LEFT JOIN oa_department
+		od ON xm.DEPT = od.DEPARTMENT_ID
+		LEFT JOIN sys_dictionaries SD1
+		ON XM.TYPE = SD1.BIANMA
+		where 1=1
+		<if test="pd.SB_NO != null and pd.SB_NO != '' and pd.SB_NO != 'null'">
+			and xe.sb_no = #{pd.SB_NO,jdbcType=VARCHAR}
+		</if>
+		<if
+			test="pd.CHECK_CONCLUSION != null and pd.CHECK_CONCLUSION != '' and pd.CHECK_CONCLUSION != 'null'">
+			and xm.CHECK_CONCLUSION = #{pd.CHECK_CONCLUSION,jdbcType=VARCHAR}
+		</if>
+		<if test="pd.DEPT != null and pd.DEPT!= '' and pd.DEPT!= 'null'">
+			and xm.DEPT = #{pd.DEPT,jdbcType=VARCHAR}
+		</if>
+		<if test="pd.STRARTTIME!=null and pd.STRARTTIME!='' and pd.STRARTTIME!='null'">
+			and xm.CHECK_DATE &gt;= #{pd.STRARTTIME}
+		</if>
+		<if test="pd.ENDTIME!=null and pd.ENDTIME!='' and pd.ENDTIME!='null'">
+			and xm.CHECK_DATE &lt;= #{pd.ENDTIME}
+		</if>
+		<if test="pd.CHECK_USER!=null and pd.CHECK_USER!='' and pd.CHECK_USER!='null'">
+			and xm.CHECK_USER like CONCAT(CONCAT('%', #{pd.CHECK_USER}),'%')
+		</if>
+		<if test="pd.EQUIPMENT_NAME!=null and pd.EQUIPMENT_NAME!='' and pd.EQUIPMENT_NAME!='null'">
+			and xe.NAME like CONCAT(CONCAT('%', #{pd.EQUIPMENT_NAME}),'%')
+		</if>
+		<if test="pd.type_name!=null and pd.type_name!='' and pd.type_name!='null'">
+			and SD1.BZ = #{pd.type_name,jdbcType=VARCHAR}
+		</if>
+		ORDER BY xm.CHECK_DATE DESC
+	</select>
+
+	<select id="DataStatisticsExport" parameterType="pd"
+		resultType="pd">
+		SELECT
+		xe.NAME AS EQUIPMENT_NAME,
+		SD1.BZ type_name,
+		xe.sb_no,
+		xm.CHECK_DATE,
+		od.NAME AS dept_name,
+		xm.MARK1 AS BZ,
+		xm.CHECK_USER AS user_name
+		FROM
+		xj_main xm
+		LEFT JOIN
+		xj_equipment xe ON xm.EQUIPMENT_ID = xe.SB_NO
+		LEFT JOIN oa_department
+		od ON xm.DEPT = od.DEPARTMENT_ID
+		LEFT JOIN sys_dictionaries SD1
+		ON XM.TYPE = SD1.BIANMA
+		where 1=1
+		<if test="SB_NO != null and SB_NO != ''">
+			and xe.sb_no = #{SB_NO}
+		</if>
+		<if test="CHECK_CONCLUSION != 'null' and CHECK_CONCLUSION != ''">
+			and xm.CHECK_CONCLUSION = #{CHECK_CONCLUSION}
+		</if>
+		<if test="DEPT != 'null' and DEPT!= ''">
+			and xm.DEPT = #{DEPT}
+		</if>
+		<if test="STRARTTIME!=null and STRARTTIME!=''">
+			and xm.CHECK_DATE &gt;= #{STRARTTIME}
+		</if>
+		<if test="ENDTIME!=null and ENDTIME!=''">
+			and xm.CHECK_DATE &lt;= #{ENDTIME}
+		</if>
+	</select>
+
+	<select id="getImgByID" parameterType="pd" resultType="pd">
+		select *
+		from xj_media where XJ_ID = #{XJ_ID}
+	</select>
+
+	<select id="listBySbNolistPage" parameterType="page" resultType="pd">
+		SELECT
+	xj.ID XJ_ID,
+	xj.EQUIPMENT_ID,
+	XJ.MARK1,
+CASE
+		xj.CHECK_CONCLUSION 
+		WHEN '0' THEN
+		'完好' 
+		WHEN '1' THEN
+		'存在问题(可用)' 
+		WHEN '2' THEN
+		'计划修理' 
+		WHEN '3' THEN
+		'故障(不可用)'
+		ELSE
+		'未知状态' 
+	END CHECK_CONCLUSION_NAME,
+	xe.NAME AS EQUIPMENT_name,
+	xj.CHECK_DATE,
+	xj.CHECK_USER,
+	SD1.NAME type_name 
+FROM
+	xj_main xj
+	LEFT JOIN xj_equipment xe ON xj.EQUIPMENT_ID = xe.SB_NO
+	LEFT JOIN sys_dictionaries SD1 ON xj.TYPE = SD1.BIANMA
+		where
+		xj.EQUIPMENT_ID = #{pd.EQUIPMENT_ID,jdbcType=VARCHAR}
+		<if test="pd.CHECK_DATE != 'null' and pd.CHECK_DATE != ''">
+			and xj.CHECK_DATE LIKE CONCAT(#{pd.CHECK_DATE,jdbcType=VARCHAR},'%')
+		</if>
+	ORDER BY XJ.CHECK_DATE DESC
+	</select>
+	<!-- 按XJ_ID查询 -->
+	<select id="findById" parameterType="page" resultType="pd">
+		SELECT
+	xj.ID XJ_ID,
+  SD1.NAME type_name,
+	XJ.CHECK_POINT,
+	XJ.TYPE,
+CASE
+		xj.CHECK_CONCLUSION 
+		WHEN '0' THEN
+		'完好' 
+		WHEN '1' THEN
+		'存在问题(可用)' 
+		WHEN '2' THEN
+		'计划修理' 
+		WHEN '3' THEN
+		'故障(不可用)'
+		ELSE
+		'未知状态' 
+	END CHECK_CONCLUSION_NAME,
+	xj.CHECK_DATE,
+	xj.CHECK_USER,
+	xj.EQUIPMENT_ID,
+	xj.MARK1,
+	xe.NAME AS EQUIPMENT_name,
+	SD.DICTIONARIES_ID DIC_ID,
+	OD.NAME 
+FROM
+	xj_main xj
+	LEFT JOIN xj_equipment xe ON xj.EQUIPMENT_ID = xe.SB_NO
+	LEFT JOIN OA_DEPARTMENT OD ON XJ.DEPT = OD.DEPARTMENT_ID
+	LEFT JOIN sys_dictionaries SD ON XJ.TYPE = SD.BIANMA
+	LEFT JOIN sys_dictionaries SD1 ON XJ.TYPE = SD1.BIANMA
+		where
+		xj.ID = #{pd.XJ_ID}
+	</select>
+	
+	<!-- 按USER_ID查询 -->
+	<select id="findByUserId" parameterType="page" resultType="pd">
+		SELECT
+	xj.ID XJ_ID,
+  SD1.NAME type_name,
+	XJ.CHECK_POINT,
+	XJ.TYPE,
+CASE
+		xj.CHECK_CONCLUSION 
+		WHEN '0' THEN
+		'完好' 
+		WHEN '1' THEN
+		'存在问题(可用)' 
+		WHEN '2' THEN
+		'计划修理' 
+		WHEN '3' THEN
+		'故障(不可用)'
+		ELSE
+		'未知状态' 
+	END CHECK_CONCLUSION_NAME,
+	xj.CHECK_DATE,
+	xj.CHECK_USER,
+	xj.EQUIPMENT_ID,
+	xj.MARK1,
+	xe.NAME AS EQUIPMENT_name,
+	SD.DICTIONARIES_ID DIC_ID,
+	OD.NAME 
+FROM
+	xj_main xj
+	LEFT JOIN xj_equipment xe ON xj.EQUIPMENT_ID = xe.SB_NO
+	LEFT JOIN OA_DEPARTMENT OD ON XJ.DEPT = OD.DEPARTMENT_ID
+	LEFT JOIN sys_dictionaries SD ON XJ.TYPE = SD.BIANMA
+	LEFT JOIN sys_dictionaries SD1 ON XJ.TYPE = SD1.BIANMA
+		where
+		xj.CHECK_USER = #{pd.CHECK_USER}
+		ORDER BY XJ.CHECK_DATE DESC
+	</select>
+	<select id="listBySbNo" parameterType="pd"
+		resultType="pd">
+		SELECT
+	xj.ID XJ_ID,
+	xj.EQUIPMENT_ID,
+	XJ.MARK1,
+CASE
+		xj.CHECK_CONCLUSION 
+		WHEN '0' THEN
+		'完好' 
+		WHEN '1' THEN
+		'存在问题(可用)' 
+		WHEN '2' THEN
+		'计划修理' 
+		WHEN '3' THEN
+		'故障(不可用)'
+		ELSE
+		'未知状态' 
+	END CHECK_CONCLUSION_NAME,
+	xe.NAME AS EQUIPMENT_name,
+	xj.CHECK_DATE,
+	xj.CHECK_USER,
+	SD1.NAME type_name 
+FROM
+	xj_main xj
+	LEFT JOIN xj_equipment xe ON xj.EQUIPMENT_ID = xe.SB_NO
+	LEFT JOIN sys_dictionaries SD1 ON xj.TYPE = SD1.BIANMA
+		where
+		xj.EQUIPMENT_ID = #{EQUIPMENT_ID,jdbcType=VARCHAR}
+		<if test="CHECK_DATE != 'null' and CHECK_DATE != ''">
+			and xj.CHECK_DATE LIKE CONCAT(#{CHECK_DATE,jdbcType=VARCHAR},'%')
+		</if>
+	ORDER BY XJ.CHECK_DATE DESC
+	</select>
+	<!-- 查询问题 -->
+	<select id="getAllQu" parameterType="pd" resultType="pd">
+	SELECT
+	XAC.*,
+	SD.BZ 
+	FROM
+	xj_action XAC
+	LEFT JOIN sys_dictionaries SD ON XAC.TYPE = SD.DICTIONARIES_ID 
+	WHERE XJ_ID = #{XJ_ID} AND XAC.`STATUS` != '3'
+	</select>
+	<!-- 封闭问题 -->
+	<update id="OverQst" parameterType="pd">
+		UPDATE xj_action XAC SET XAC.END_DATE = #{END_DATE},XAC.STATUS = '1',XAC.NOTE2 = #{NOTE2} WHERE XAC.ID = #{ID}
+	</update>
+	<!-- 删除问题 -->
+	<update id="DelQst" parameterType="pd">
+		UPDATE xj_action XAC SET XAC.STATUS = '3' WHERE XAC.ID = #{ID}
+	</update>
+	<!-- 问题清单 -->
+	<select id="QuestionlistPage" parameterType="page" resultType="pd">
+		SELECT
+	XE.`NAME` EQUIPMENT_NAME,
+	XAC.XJ_ID,
+	SD.BZ,
+	OD1.`NAME` DEPT,
+	XM.CHECK_USER,
+	XAC.NEXT_USER,
+	XAC.START_DATE,
+	XAC.END_DATE,
+	XAC.NOTE,
+	XM.EQUIPMENT_ID,
+CASE
+		XAC.`STATUS` 
+		WHEN '0' THEN
+		'未封闭' 
+		WHEN '1' THEN
+		'已封闭' ELSE '未知状态' 
+	END STATUS_NAME 
+FROM
+	xj_action XAC
+	LEFT JOIN xj_main XM ON XAC.XJ_ID = XM.ID
+	LEFT JOIN xj_equipment XE ON XM.EQUIPMENT_ID = XE.SB_NO
+	LEFT JOIN oa_department OD ON XM.DEPT = OD.DEPARTMENT_ID
+	LEFT JOIN oa_department OD1 ON OD.PARENT_ID = OD1.DEPARTMENT_ID
+	LEFT JOIN sys_dictionaries SD ON XAC.TYPE = SD.DICTIONARIES_ID
+	WHERE xe.`NAME` != "" and XM.CHECK_USER != "" 
+	<if test="pd.CHECK_USER != 'null' and pd.CHECK_USER != ''">
+		AND XM.CHECK_USER LIKE CONCAT(CONCAT('%', #{pd.CHECK_USER}),'%')
+	</if>
+	<if test="pd.EQUIPMENT_ID != 'null' and pd.EQUIPMENT_ID != ''">
+		AND XM.EQUIPMENT_ID LIKE CONCAT(CONCAT('%', #{pd.EQUIPMENT_ID}),'%')
+	</if>
+	<if test="pd.NEXT_USER != 'null' and pd.NEXT_USER != ''">
+		AND XAC.NEXT_USER LIKE CONCAT(CONCAT('%', #{pd.NEXT_USER}),'%')
+	</if>
+	<if test="pd.STATUS != 'null' and pd.STATUS != ''">
+		AND XAC.STATUS =#{pd.STATUS}
+	</if>
+	<if test="pd.STRARTTIME!=null and pd.STRARTTIME!=''">
+		and XAC.START_DATE &gt;= #{pd.STRARTTIME}
+	</if>
+	<if test="pd.ENDTIME!=null and pd.ENDTIME!=''">
+		and XAC.START_DATE &lt;= #{pd.ENDTIME}
+	</if>
+	ORDER BY XAC.START_DATE DESC 
+	</select>
+	<!-- 查询问题，按设备编号 -->
+	<select id="getAllQuBySbNo" parameterType="pd" resultType="pd">
+	SELECT
+	SD.BZ,
+	XAC.NOTE,
+	SD1.BZ BZ1,
+	XAC.START_DATE,
+	XM.CHECK_USER,
+	XAC.`STATUS`,
+	XM.ID XJ_ID,
+	XAC.ID ACT_ID
+FROM
+	xj_main XM
+	LEFT JOIN xj_action XAC ON XM.ID = XAC.XJ_ID 
+	LEFT JOIN sys_dictionaries SD ON XM.TYPE = SD.BIANMA
+	LEFT JOIN sys_dictionaries SD1 ON XAC.TYPE = SD1.DICTIONARIES_ID
+WHERE
+	XM.EQUIPMENT_ID = #{EQUIPMENT_ID}
+	AND XAC.`STATUS` = 0
+	ORDER BY XAC.START_DATE DESC
+	</select>
+	<!-- 导出巡检记录 -->
+	<select id="exportXjMain" parameterType="pd" resultType="pd">
+	SELECT XM.ID,
+	SD.BZ TYPE_NAME,
+	XE.SB_NO EQUIPMENT_ID,
+	XM.CHECK_DATE,
+	XE.NAME SB_NAME,
+	XM.CHECK_USER,
+	OD.NAME DEPT_NAME
+	FROM xj_main XM
+	LEFT JOIN sys_dictionaries SD
+	ON XM.TYPE = SD.BIANMA
+	LEFT JOIN xj_equipment XE
+	ON XM.EQUIPMENT_ID = XE.SB_NO
+	LEFT JOIN oa_department OD
+	ON XM.DEPT = OD.DEPARTMENT_ID
+	WHERE XM.ID = #{XJ_ID}
+	</select>
+	<!-- 导出-所有检查点 -->
+	<select id="exportXjCpAll" parameterType="pd" resultType="pd">
+	SELECT SD1.* FROM sys_dictionaries SD
+	LEFT JOIN xj_main XM
+	ON SD.BIANMA = XM.TYPE
+	LEFT JOIN sys_dictionaries SD1
+	ON SD.DICTIONARIES_ID = SD1.PARENT_ID
+	WHERE XM.ID = #{XJ_ID}
+	</select>
+	<!-- 导出-选中检查点 -->
+	<select id="exportXjCpSelect" parameterType="pd" resultType="pd">
+	SELECT XM.CHECK_POINT FROM xj_main XM WHERE XM.ID = #{XJ_ID}
+	</select>
+	<!-- 导出-问题反馈 -->
+	<select id="exportXjQuestion" parameterType="pd" resultType="pd">
+	SELECT XAC.NOTE,XAC.ID FROM xj_action XAC
+	LEFT JOIN xj_main XM
+	ON XAC.XJ_ID = XM.ID
+	LEFT JOIN sys_dictionaries SD
+	ON XAC.TYPE = SD.DICTIONARIES_ID
+	WHERE XAC.XJ_ID = #{XJ_ID}
+	AND XAC.TYPE = #{CHECK_POINT}
+	</select>
+</mapper>

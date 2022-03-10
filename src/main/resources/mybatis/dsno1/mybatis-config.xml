@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD SQL Map Config 3.0//EN"  
+	"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+	<properties resource="flowable.properties">
+	   <property name="blobType" value="BLOB"></property>
+	   <property name="boolValue" value="TRUE"></property>
+	   <property name="prefix" value=""></property>
+	</properties>
+
+	<typeAliases>
+		<typeAlias type="org.fh.entity.PageData" alias="pd"/>
+		<typeAlias type="org.fh.entity.Page" alias="page"/>
+		<typeAlias type="org.fh.entity.system.User" alias="user"/>
+		<typeAlias type="org.fh.entity.system.Menu" alias="menu"/>
+		<typeAlias type="org.fh.entity.system.Role" alias="role"/>
+		<typeAlias type="org.fh.entity.system.Dictionaries" alias="dictionaries"/>
+		<typeAlias type="org.fh.entity.fhoa.Department" alias="Department"/>
+		<typeAlias type="org.fh.entity.fhoa.Mfolder" alias="Mfolder"/>
+		<!-- 这里添加实体类 -->
+		
+	</typeAliases>
+	
+	<!-- 正则匹配分页拦截器，需要分页的方法名必须带着".*listPage.*字段" -->
+	<plugins>
+		<plugin interceptor="org.fh.plugins.PagePlugin">
+			<property name="dialect" value="mysql"/>
+			<property name="pageSqlId" value=".*listPage.*"/>
+		</plugin>
+	</plugins>
+	
+</configuration>

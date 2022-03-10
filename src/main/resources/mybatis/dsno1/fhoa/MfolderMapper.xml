@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.fh.mapper.dsno1.fhoa.MfolderMapper">
+	
+	<resultMap type="Mfolder" id="mfolderResultMap">
+		<id column="MFOLDER_ID" property="MFOLDER_ID"/>
+		<result column="NAME" property="NAME"/>
+		<result column="PARENT_ID" property="PARENT_ID"/>
+	</resultMap>
+	
+	<!--表名 -->
+	<sql id="tableName">
+		OA_MFOLDER
+	</sql>
+	
+	<!--数据字典表名 -->
+	<sql id="dicTableName">
+		SYS_DICTIONARIES
+	</sql>
+	
+	<!-- 字段 -->
+	<sql id="Field">
+		f.FILEPATH,	
+		f.CTIME,	
+		f.UNAME,	
+		f.MASTER,	
+		f.FILESIZE,	
+		f.SHARE,	
+		f.REMARKS,	
+		f.MFOLDER_ID,
+		f.PARENT_ID,
+		f.NAME
+	</sql>
+	
+	<!-- 字段用于新增 -->
+	<sql id="Field2">
+		FILEPATH,	
+		CTIME,	
+		UNAME,	
+		MASTER,	
+		FILESIZE,	
+		SHARE,	
+		REMARKS,	
+		MFOLDER_ID,
+		PARENT_ID,
+		NAME
+	</sql>
+	
+	<!-- 字段值 -->
+	<sql id="FieldValue">
+		#{FILEPATH},	
+		#{CTIME},	
+		#{UNAME},	
+		#{MASTER},	
+		#{FILESIZE},	
+		#{SHARE},	
+		#{REMARKS},	
+		#{MFOLDER_ID},
+		#{PARENT_ID},
+		#{NAME}
+	</sql>
+	
+	<!-- 新增-->
+	<insert id="save" parameterType="pd">
+		insert into 
+	<include refid="tableName"></include>
+		(
+	<include refid="Field2"></include>
+		) values (
+	<include refid="FieldValue"></include>
+		)
+	</insert>
+	
+	<!-- 删除-->
+	<delete id="delete" parameterType="pd">
+		delete from
+		<include refid="tableName"></include>
+		where 
+			MFOLDER_ID = #{MFOLDER_ID}
+	</delete>
+	
+	<!-- 修改 -->
+	<update id="edit" parameterType="pd">
+		update
+		<include refid="tableName"></include>
+		set 
+			SHARE = #{SHARE},
+			REMARKS = #{REMARKS},
+			NAME = #{NAME},
+			MFOLDER_ID = MFOLDER_ID
+		where 
+			MFOLDER_ID = #{MFOLDER_ID}
+	</update>
+	
+	<!-- 通过ID获取数据 -->
+	<select id="findById" parameterType="pd" resultType="pd">
+		select 
+		<include refid="Field"></include>
+		from 
+		<include refid="tableName"></include> f
+		where 
+			f.MFOLDER_ID = #{MFOLDER_ID}
+	</select>
+	
+	<!-- 列表 -->
+	<select id="datalistPage" parameterType="page" resultType="pd">
+		select
+		<include refid="Field"></include>
+		from 
+		<include refid="tableName"></include> f
+		where 1=1
+		<if test="pd.MFOLDER_ID!= null and pd.MFOLDER_ID != ''"><!-- 检索 -->
+			and f.PARENT_ID = #{pd.MFOLDER_ID}
+		</if>
+		<if test="pd.KEYWORDS != null and pd.KEYWORDS != ''"><!-- 关键词检索 -->
+			and
+				(
+					f.REMARKS LIKE CONCAT(CONCAT('%', #{pd.KEYWORDS}),'%')
+					 or 
+					f.NAME LIKE CONCAT(CONCAT('%', #{pd.KEYWORDS}),'%') 
+				)
+		</if>
+		<if test="pd.USERNAME!= null and pd.USERNAME != ''">
+			and f.MASTER = #{pd.USERNAME}
+		</if>
+		<if test="pd.SHARE != null and pd.SHARE == 'yes'">
+			and f.SHARE = 'yes'
+		</if>
+		order by f.CTIME desc
+	</select>
+	
+	<!-- 通过ID获取其子级列表 -->
+	<select id="listByParentId" parameterType="pd" resultMap="mfolderResultMap">
+		select 
+		<include refid="Field"></include>
+		from 
+		<include refid="tableName"></include> f
+		where 
+			f.PARENT_ID = #{parentId} 
+		<if test="USERNAME != null and USERNAME != ''">
+			and f.MASTER = #{USERNAME}
+		</if>
+		<if test="SHARE != null and SHARE == 'yes'">
+			and f.SHARE = 'yes'
+		</if>
+		order by f.NAME 
+	</select>
+	
+	<!-- 根据ID组修改数据 -->
+	<update id="makeAll" parameterType="pd">
+		update
+		<include refid="tableName"></include>
+		set 
+			SHARE = #{SHARE}
+		where 
+			MFOLDER_ID in
+		<foreach item="item" index="index" collection="IDS" open="(" separator="," close=")">
+                 #{item}
+		</foreach>
+	</update>
+	
+	<!-- 列表(全部) -->
+	<select id="listAll" parameterType="pd" resultType="pd">
+		select
+		<include refid="Field"></include>
+		from 
+		<include refid="tableName"></include> f
+	</select>
+	
+	
+	<!-- fh 31 3 59 67 90 qq(fsci) -->
+</mapper>

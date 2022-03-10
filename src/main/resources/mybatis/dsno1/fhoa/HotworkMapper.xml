@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.fh.mapper.dsno1.fhoa.HotworkMapper">
+
+	<!--表名 -->
+	<sql id="tableName">
+		OA_HOTWORK
+	</sql>
+
+	<!--历史流程参与者表 -->
+	<sql id="ahitableName">
+		ACT_HI_IDENTITYLINK
+	</sql>
+
+	<!-- 字段 -->
+	<sql id="Field">
+		ID,
+		PROC_INST_ID_,
+		APPLYUSER,
+		LEVEL,
+		PROJ,
+		SEGMENT,
+		WORKZOON,
+		AREA,
+		CONTRACTOR,
+		WATCHFIRE,
+		OPERATORS,
+		STARTTIME,
+		ENDTIME,
+		DETIAL,
+		CHECKPOINT,
+		REMARKS,
+		COMMITTIME,
+		STATUS,
+		INTERVENTION
+	</sql>
+
+	<!-- 字段值 -->
+	<sql id="FieldValue">
+		#{ID},
+		#{PROC_INST_ID_},
+		#{APPLYUSER},
+		#{LEVEL},
+		#{PROJ},
+		#{SEGMENT},
+		#{WORKZOON},
+		#{AREA},
+		#{CONTRACTOR},
+		#{WATCHFIRE},
+		#{OPERATORS},
+		#{STARTTIME},
+		#{ENDTIME},
+		#{DETIAL},
+		#{CHECKPOINT},
+		#{REMARKS},
+		#{COMMITTIME},
+		#{STATUS},
+		#{INTERVENTION}
+	</sql>
+
+	<!-- 新增 -->
+	<insert id="save" parameterType="pd">
+		insert into
+		<include refid="tableName"></include>
+		(
+		<include refid="Field"></include>
+		) values (
+		<include refid="FieldValue"></include>
+		)
+	</insert>
+
+	<!-- 删除 -->
+	<delete id="delete" parameterType="pd">
+		delete from
+		<include refid="tableName"></include>
+		where
+		ID = #{ID}
+	</delete>
+
+	<!-- 修改 -->
+	<update id="edit" parameterType="pd">
+		update
+		<include refid="tableName"></include>
+		set
+		APPLYUSER = #{APPLYUSER},
+		LEVEL = #{LEVEL},
+		PROJ = #{PROJ},
+		SEGMENT =
+		#{SEGMENT},
+		WORKZOON = #{WORKZOON},
+		AREA = #{AREA},
+		CONTRACTOR =
+		#{CONTRACTOR},
+		WATCHFIRE = #{WATCHFIRE},
+		OPERATORS = #{OPERATORS},
+		STARTTIME = #{STARTTIME},
+		ENDTIME = #{ENDTIME},
+		DETIAL = #{DETIAL},
+		CHECKPOINT = #{CHECKPOINT},
+		REMARKS = #{REMARKS},
+		STATUS = #{STATUS},
+		INTERVENTION = #{INTERVENTION}
+		where
+		ID = #{ID}
+	</update>
+
+	<!-- 通过ID获取数据 -->
+	<select id="findById" parameterType="pd" resultType="pd">
+		select
+		<include refid="Field"></include>
+		from
+		<include refid="tableName"></include>
+		where
+		ID = #{ID}
+	</select>
+
+	<!-- 列表 -->
+	<select id="datalistPage" parameterType="page" resultType="pd">
+		select
+		H.ID,
+		H.APPLYUSER,
+		H.LEVEL,
+		H.PROJ,
+		H.SEGMENT,
+		H.WORKZOON,
+		H.AREA,
+		H.CONTRACTOR,
+		H.WATCHFIRE,
+		H.OPERATORS,
+		H.STARTTIME,
+		H.ENDTIME,
+		H.DETIAL,
+		H.CHECKPOINT,
+		H.REMARKS,
+		H.COMMITTIME,
+		H.PROC_INST_ID_,
+		H.STATUS,
+		H.INTERVENTION
+		from
+		<include refid="tableName"></include>
+		H
+		LEFT JOIN
+		<include refid="ahitableName"></include>
+		AHI
+		ON H.PROC_INST_ID_ = AHI.PROC_INST_ID_
+		where 1=1
+		and H.STATUS != '0'
+		<if test="pd.keywords!= null and pd.keywords != ''"><!-- 关键词检索 -->
+			and
+			(
+			H.WORKZOON LIKE CONCAT(CONCAT('%', #{pd.keywords}),'%')
+			or
+			H.CONTRACTOR LIKE CONCAT(CONCAT('%', #{pd.keywords}),'%')
+			or
+			H.DETIAL
+			LIKE CONCAT(CONCAT('%', #{pd.keywords}),'%')
+			or
+			H.AREA
+			LIKE
+			CONCAT(CONCAT('%', #{pd.keywords}),'%')
+			or H.PROC_INST_ID_ =
+			#{pd.keywords}
+			)
+		</if>
+		<if test="pd.APPLYUSER!= null and pd.APPLYUSER != ''">
+			and H.APPLYUSER = #{pd.APPLYUSER}
+		</if>
+		<if test="pd.PROJ != null and pd.PROJ != ''"><!-- 按项目号检索 -->
+			and H.PROJ=#{pd.PROJ}
+		</if>
+		<if test="pd.STATUS != null and pd.STATUS != ''"><!-- 按状态查询 -->
+			and H.STATUS=#{pd.STATUS}
+		</if>
+		<if test="pd.ABOUTUSER != null and pd.ABOUTUSER != ''"><!-- 与我相关 -->
+			and AHI.USER_ID_=#{pd.ABOUTUSER}
+		</if>
+		GROUP BY H.PROC_INST_ID_
+		order by H.ID desc
+	</select>
+
+	<!-- 批量删除 -->
+	<delete id="deleteAll" parameterType="String">
+		delete from
+		<include refid="tableName"></include>
+		where
+		ID in
+		<foreach item="item" index="index" collection="array" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+</mapper>

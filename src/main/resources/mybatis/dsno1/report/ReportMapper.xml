@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.fh.mapper.dsno1.report.ReportMapper">
+
+	<insert id="save" parameterType="pd">
+		INSERT INTO tb_report(
+			id,phone,describes,area,area_value,insert_time,status,openid
+		)VALUES (
+			#{id},#{phone},#{describes},#{area},#{area_value},#{insert_time},#{status},#{openid}
+		)
+	</insert>
+
+	<update id="edit" parameterType="pd">
+		UPDATE tb_report SET status = '1' WHERE id = #{id}
+	</update>
+
+	<select id="datalistPage" parameterType="page" resultType="pd">
+		SELECT
+		    *
+		FROM
+		    tb_report
+		WHERE
+			1=1
+		<if test="pd.area_value!= null and pd.area_value != ''">
+			and area_value LIKE CONCAT('%', #{pd.area_value}, '%')
+		</if>
+		ORDER BY
+		status ASC ,insert_time desc
+	</select>
+
+	<select id="getDetailById" parameterType="pd" resultType="pd">
+		SELECT * FROM tb_report WHERE id = #{id}
+	</select>
+
+</mapper>

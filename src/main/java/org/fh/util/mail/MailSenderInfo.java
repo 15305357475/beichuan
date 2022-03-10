@@ -1,0 +1,185 @@
+package org.fh.util.mail;
+
+/**
+ * 说明：发送邮件需要使用的基本信息 
+ * 作者：fsci
+ * 授权：bsic
+ */
+import java.util.Properties;
+
+public class MailSenderInfo {
+	final String SSL_FACTORY = "javax.net.ssl.SSLSocketFactory";
+	// 发送邮件的服务器的IP和端口
+	private String mailServerHost;
+	private String mailServerPort = "25";
+	// 邮件发送者的地址
+	private String fromAddress;
+	// 邮件接收者的地址
+	private String toAddress;
+	// 邮件抄送人地址
+	private String ccAddress;
+	// 邮件密送人地址
+	private String bccAddress;
+	// 登陆邮件发送服务器的用户名和密码
+	private String userName;
+	private String password;
+	// 是否需要身份验证
+	private boolean validate = false;
+	// 邮件主题
+	private String subject;
+	// 邮件的文本内容
+	private String content;
+	// 邮件附件的文件名
+	private String attachFileNames;
+	// 邮件附件路径
+	private String attachFilePath;
+
+	/**
+	 * 获得邮件会话属性-SMTP
+	 */
+	public Properties getProperties() {
+		Properties p = new Properties();
+		p.setProperty("mail.debug", "true");// 开启日志
+		p.setProperty("mail.smtp.socketFactory.class", SSL_FACTORY);
+        p.setProperty("mail.smtp.socketFactory.fallback", "false");
+        p.setProperty("mail.smtp.socketFactory.port", "465");
+		p.put("mail.smtp.host", this.mailServerHost);
+		p.put("mail.smtp.port", this.mailServerPort);
+		p.put("mail.smtp.auth", validate ? "true" : "false");
+		return p;
+	}
+
+	/**
+	 * 获得邮件会话属性-POP3
+	 */
+	public Properties getPropertiesPOP3() {
+		Properties p = new Properties();
+		// p.setProperty("mail.debug", "true");// 开启日志
+		p.put("mail.pop3.host", this.mailServerHost);
+		p.put("mail.pop3.port", this.mailServerPort);
+		p.put("mail.store.protocol", "pop3");
+		return p;
+	}
+
+	/**
+	 * 获得邮件会话属性-IMAP
+	 */
+	public Properties getPropertiesIMAP() {
+		Properties p = new Properties();
+		p.setProperty("mail.debug", "true");// 开启日志
+		p.put("mail.imap.host", this.mailServerHost);
+		p.put("mail.imap.port", this.mailServerPort);
+		p.put("mail.store.protocol", "imap");
+		// 关闭读取附件时分批获取BASE64输入流
+		// 可显著提高附件下载速度
+		p.put("mail.imap.partialfetch", "false");
+		p.put("mail.imap.fetchsize", "1048576");
+		p.put("mail.imaps.partialfetch", "false");
+		p.put("mail.imaps.fetchsize", "1048576");
+		return p;
+	}
+
+	public String getMailServerHost() {
+		return mailServerHost;
+	}
+
+	public void setMailServerHost(String mailServerHost) {
+		this.mailServerHost = mailServerHost;
+	}
+
+	public String getMailServerPort() {
+		return mailServerPort;
+	}
+
+	public void setMailServerPort(String mailServerPort) {
+		this.mailServerPort = mailServerPort;
+	}
+
+	public boolean isValidate() {
+		return validate;
+	}
+
+	public void setValidate(boolean validate) {
+		this.validate = validate;
+	}
+
+	public String getAttachFileNames() {
+		return attachFileNames;
+	}
+
+	public void setAttachFileNames(String fileNames) {
+		this.attachFileNames = fileNames;
+	}
+
+	public String getFromAddress() {
+		return fromAddress;
+	}
+
+	public void setFromAddress(String fromAddress) {
+		this.fromAddress = fromAddress;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public String getToAddress() {
+		return toAddress;
+	}
+
+	public void setToAddress(String toAddress) {
+		this.toAddress = toAddress;
+	}
+
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	public String getSubject() {
+		return subject;
+	}
+
+	public void setSubject(String subject) {
+		this.subject = subject;
+	}
+
+	public String getContent() {
+		return content;
+	}
+
+	public void setContent(String textContent) {
+		this.content = textContent;
+	}
+
+	public String getCcAddress() {
+		return ccAddress;
+	}
+
+	public void setCcAddress(String ccAddress) {
+		this.ccAddress = ccAddress;
+	}
+
+	public String getBccAddress() {
+		return bccAddress;
+	}
+
+	public void setBccAddress(String bccAddress) {
+		this.bccAddress = bccAddress;
+	}
+
+	public String getAttachFilePath() {
+		return attachFilePath;
+	}
+
+	public void setAttachFilePath(String attachFilePath) {
+		this.attachFilePath = attachFilePath;
+	}
+}
