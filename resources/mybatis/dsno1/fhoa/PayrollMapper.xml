@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.fh.mapper.dsno1.fhoa.PayrollMapper">
+	
+	<!--表名 -->
+	<sql id="tableName">
+		OA_PAYROLL
+	</sql>
+	
+	<!--数据字典表名 -->
+	<sql id="dicTableName">
+		SYS_DICTIONARIES
+	</sql>
+	
+	<!-- 字段 -->
+	<sql id="Field">
+		f.NAME,	
+		f.DEPARTMENT,	
+		f.BASESALARY,	
+		f.ACHIEVEMENTS,	
+		f.FULLATTENDANCE,	
+		f.BONUS,	
+		f.ACCOMMODATIONSUBSIDY,	
+		f.TRAFFICSUBSIDY,	
+		f.PHONEALLOWANCE,	
+		f.TRAVELALLOWANCE,	
+		f.OTHERSUBSIDIES,	
+		f.OVERTIMEPAY,	
+		f.LEAVEDEDUCTION,	
+		f.LATEABSENTEEISM,	
+		f.FINE,	
+		f.INSURANCE,	
+		f.TAX,	
+		f.OTHERDEDUCTIONS,	
+		f.WAGESPAYABLE,	
+		f.REALWAGES,	
+		f.YEARMONTH,	
+		f.REMARKS,	
+		f.STAFF_ID,	
+		f.BIANMA,	
+		f.PAYROLL_ID
+	</sql>
+	
+	<!-- 字段用于新增 -->
+	<sql id="Field2">
+		NAME,	
+		DEPARTMENT,	
+		BASESALARY,	
+		ACHIEVEMENTS,	
+		FULLATTENDANCE,	
+		BONUS,	
+		ACCOMMODATIONSUBSIDY,	
+		TRAFFICSUBSIDY,	
+		PHONEALLOWANCE,	
+		TRAVELALLOWANCE,	
+		OTHERSUBSIDIES,	
+		OVERTIMEPAY,	
+		LEAVEDEDUCTION,	
+		LATEABSENTEEISM,	
+		FINE,	
+		INSURANCE,	
+		TAX,	
+		OTHERDEDUCTIONS,	
+		WAGESPAYABLE,	
+		REALWAGES,	
+		YEARMONTH,	
+		REMARKS,	
+		STAFF_ID,	
+		BIANMA,	
+		PAYROLL_ID
+	</sql>
+	
+	<!-- 字段值 -->
+	<sql id="FieldValue">
+		#{NAME},	
+		#{DEPARTMENT},	
+		#{BASESALARY},	
+		#{ACHIEVEMENTS},	
+		#{FULLATTENDANCE},	
+		#{BONUS},	
+		#{ACCOMMODATIONSUBSIDY},	
+		#{TRAFFICSUBSIDY},	
+		#{PHONEALLOWANCE},	
+		#{TRAVELALLOWANCE},	
+		#{OTHERSUBSIDIES},	
+		#{OVERTIMEPAY},	
+		#{LEAVEDEDUCTION},	
+		#{LATEABSENTEEISM},	
+		#{FINE},	
+		#{INSURANCE},	
+		#{TAX},	
+		#{OTHERDEDUCTIONS},	
+		#{WAGESPAYABLE},	
+		#{REALWAGES},	
+		#{YEARMONTH},	
+		#{REMARKS},	
+		#{STAFF_ID},	
+		#{BIANMA},	
+		#{PAYROLL_ID}
+	</sql>
+	
+	<!-- 新增-->
+	<insert id="save" parameterType="pd">
+		insert into 
+	<include refid="tableName"></include>
+		(
+	<include refid="Field2"></include>
+		) values (
+	<include refid="FieldValue"></include>
+		)
+	</insert>
+	
+	<!-- 删除-->
+	<delete id="delete" parameterType="pd">
+		delete from
+		<include refid="tableName"></include>
+		where 
+			PAYROLL_ID = #{PAYROLL_ID}
+	</delete>
+	
+	<!-- 修改 -->
+	<update id="edit" parameterType="pd">
+		update
+		<include refid="tableName"></include>
+		set 
+			BASESALARY = #{BASESALARY},
+			ACHIEVEMENTS = #{ACHIEVEMENTS},
+			FULLATTENDANCE = #{FULLATTENDANCE},
+			BONUS = #{BONUS},
+			ACCOMMODATIONSUBSIDY = #{ACCOMMODATIONSUBSIDY},
+			TRAFFICSUBSIDY = #{TRAFFICSUBSIDY},
+			PHONEALLOWANCE = #{PHONEALLOWANCE},
+			TRAVELALLOWANCE = #{TRAVELALLOWANCE},
+			OTHERSUBSIDIES = #{OTHERSUBSIDIES},
+			OVERTIMEPAY = #{OVERTIMEPAY},
+			LEAVEDEDUCTION = #{LEAVEDEDUCTION},
+			LATEABSENTEEISM = #{LATEABSENTEEISM},
+			FINE = #{FINE},
+			INSURANCE = #{INSURANCE},
+			TAX = #{TAX},
+			OTHERDEDUCTIONS = #{OTHERDEDUCTIONS},
+			WAGESPAYABLE = #{WAGESPAYABLE},
+			REALWAGES = #{REALWAGES},
+			REMARKS = #{REMARKS},
+			PAYROLL_ID = PAYROLL_ID
+		where 
+			PAYROLL_ID = #{PAYROLL_ID}
+	</update>
+	
+	<!-- 通过ID获取数据 -->
+	<select id="findById" parameterType="pd" resultType="pd">
+		select 
+		<include refid="Field"></include>
+		from 
+		<include refid="tableName"></include> f
+		where 
+			f.PAYROLL_ID = #{PAYROLL_ID}
+	</select>
+	
+	<!-- 查询某月份的数据量 -->
+	<select id="findCount" parameterType="pd" resultType="pd">
+		select 
+		 count(PAYROLL_ID) DATACOUNT
+		from 
+		<include refid="tableName"></include>
+		where 
+			YEARMONTH = #{YEARMONTH}
+		<if test="STAFF_ID != null and STAFF_ID != ''"><!-- 员工ID -->
+			and STAFF_ID = #{STAFF_ID}
+		</if>
+	</select>
+	
+	<!-- 列表 -->
+	<select id="datalistPage" parameterType="page" resultType="pd">
+		select
+		<include refid="Field"></include>
+		from 
+		<include refid="tableName"></include> f
+		where 1=1
+		<if test="pd.KEYWORDS != null and pd.KEYWORDS != ''"><!-- 关键词检索 -->
+			and
+				(
+					f.NAME LIKE CONCAT(CONCAT('%', #{pd.KEYWORDS}),'%')
+					 or 
+					f.BIANMA LIKE CONCAT(CONCAT('%', #{pd.KEYWORDS}),'%') 
+				)
+		</if>
+		<if test="pd.YEAR != null and pd.YEAR != ''"><!-- 年份检索 -->
+			and f.YEARMONTH LIKE CONCAT(#{pd.YEAR},'%')
+		</if>
+		<if test="pd.MONTH != null and pd.MONTH != ''"><!-- 月份检索 -->
+			and f.YEARMONTH LIKE CONCAT('%', #{pd.MONTH})
+		</if>
+		order by f.YEARMONTH desc
+	</select>
+	
+	<!-- 总计 -->
+	<select id="sumData" parameterType="pd" resultType="pd">
+		select
+			SUM(BASESALARY) SUMBASESALARY,
+			SUM(ACHIEVEMENTS) SUMACHIEVEMENTS,
+			SUM(FULLATTENDANCE) SUMFULLATTENDANCE,
+			SUM(BONUS) SUMBONUS,
+			SUM(ACCOMMODATIONSUBSIDY) SUMACCOMMODATIONSUBSIDY,
+			SUM(TRAFFICSUBSIDY) SUMTRAFFICSUBSIDY,
+			SUM(PHONEALLOWANCE) SUMPHONEALLOWANCE,
+			SUM(TRAVELALLOWANCE) SUMTRAVELALLOWANCE,
+			SUM(OTHERSUBSIDIES) SUMOTHERSUBSIDIES,
+			SUM(OVERTIMEPAY) SUMOVERTIMEPAY,
+			SUM(WAGESPAYABLE) SUMWAGESPAYABLE,
+			SUM(LEAVEDEDUCTION) SUMLEAVEDEDUCTION,
+			SUM(LATEABSENTEEISM) SUMLATEABSENTEEISM,
+			SUM(FINE) SUMFINE,
+			SUM(INSURANCE) SUMINSURANCE,
+			SUM(TAX) SUMTAX,
+			SUM(OTHERDEDUCTIONS) SUMOTHERDEDUCTIONS,
+			SUM(REALWAGES) SUMREALWAGES
+		from 
+		<include refid="tableName"></include>
+		where 1=1
+		<if test="KEYWORDS != null and KEYWORDS != ''"><!-- 关键词检索 -->
+			and
+				(
+					NAME LIKE CONCAT(CONCAT('%', #{KEYWORDS}),'%')
+					 or 
+					BIANMA LIKE CONCAT(CONCAT('%', #{KEYWORDS}),'%') 
+				)
+		</if>
+		<if test="YEAR != null and YEAR != ''"><!-- 年份检索 -->
+			and YEARMONTH LIKE CONCAT(#{YEAR},'%')
+		</if>
+		<if test="MONTH != null and MONTH != ''"><!-- 月份检索 -->
+			and YEARMONTH LIKE CONCAT('%', #{MONTH})
+		</if>
+	</select>
+	
+	<!-- 列表(全部) -->
+	<select id="listAll" parameterType="pd" resultType="pd">
+		select
+		<include refid="Field"></include>
+		from 
+		<include refid="tableName"></include> f
+	</select>
+	
+	<!-- 批量删除 -->
+	<delete id="deleteAll" parameterType="String">
+		delete from
+		<include refid="tableName"></include>
+		where 
+			PAYROLL_ID in
+		<foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+                 #{item}
+		</foreach>
+	</delete>
+	
+	
+</mapper>

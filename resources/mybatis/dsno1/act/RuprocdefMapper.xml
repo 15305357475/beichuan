@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.fh.mapper.dsno1.act.RuprocdefMapper">
+
+	<!--表名 -->
+	<sql id="tableName">
+		ACT_RU_TASK
+	</sql>
+
+	<!--流程实例表 -->
+	<sql id="ptableName">
+		ACT_RE_PROCDEF
+	</sql>
+
+	<!--流程变量表 -->
+	<sql id="vartableName">
+		ACT_RU_VARIABLE
+	</sql>
+
+	<!--历史任务节点表 -->
+	<sql id="hitinsttableName">
+		ACT_HI_ACTINST
+	</sql>
+
+	<!--历史任务表 -->
+	<sql id="hitasktableName">
+		ACT_HI_TASKINST
+	</sql>
+
+	<!--历史流程变量表 -->
+	<sql id="hivartableName">
+		ACT_HI_VARINST
+	</sql>
+
+	<!-- 待办任务 or正在运行任务列表 -->
+	<select id="datalistPage" parameterType="page" resultType="pd">
+		select
+		f.*,
+		p.NAME_ PNAME_,
+		p.DGRM_RESOURCE_NAME_
+		from
+		<include refid="tableName"></include>
+		f
+		left join
+		<include refid="ptableName"></include>
+		p
+		on f.PROC_DEF_ID_ = p.ID_
+		<!-- 目的为了支持流程变量搜索，用户自己提的无脑需求只能照做。系统卡顿时撤销如下左连接 -->
+		<!-- left join <include refid="vartableName"></include> r on f.PROC_INST_ID_ 
+			= r.PROC_INST_ID_ -->
+		where 1=1
+		<if test="pd.keywords!= null and pd.keywords != ''"><!-- 关键词检索 -->
+			and
+			(
+			p.NAME_ LIKE CONCAT(CONCAT('%', #{pd.keywords}),'%')
+			or
+			f.NAME_
+			LIKE CONCAT(CONCAT('%', #{pd.keywords}),'%')
+			or
+			f.ASSIGNEE_ LIKE
+			CONCAT(CONCAT('%', #{pd.keywords}),'%')
+			<!-- or r.TEXT_ LIKE CONCAT(CONCAT('%', #{pd.keywords}),'%') --><!-- 用户无脑需求，系统卡顿删掉本句 -->
+			or
+			f.PROC_INST_ID_ = #{pd.keywords}
+			)
+		</if>
+		<if test="pd.lastStart != null and pd.lastStart != ''"><!-- 开始时间检索 -->
+			and f.CREATE_TIME_ &gt;= #{pd.lastStart}
+		</if>
+		<if test="pd.lastEnd != null and pd.lastEnd != ''"><!-- 结束时间检索 -->
+			and f.CREATE_TIME_ &lt;= #{pd.lastEnd}
+		</if>
+		<if test="pd.PROC_INST_ID_ != null and pd.PROC_INST_ID_ != ''"><!-- 精准检索 -->
+			and f.PROC_INST_ID_ = #{pd.PROC_INST_ID_}
+		</if>
+		<if test="pd.PROC_TYPE != null and pd.PROC_TYPE != ''"><!-- 固定类型待办搜索 -->
+			and p.NAME_ = #{pd.PROC_TYPE}
+		</if>
+		<if test="pd.USERNAME != null and pd.USERNAME != ''"><!-- 当前办理人检索 -->
+			and
+			(
+			f.ASSIGNEE_ = #{pd.USERNAME}
+			or
+			f.ASSIGNEE_ in ${pd.RNUMBERS}
+			)
+		</if>
+		<!-- group by f.PROC_INST_ID_ --><!-- 用户无脑需求，系统卡顿删掉本句 -->
+		order by f.CREATE_TIME_ desc
+	</select>
+
+
+	<!-- 根据流程实例ID获取待办任务 or正在运行任务的伴随表表名 -->
+	<select id="getTableNameById" parameterType="pd" resultType="pd">
+		select
+		f.PROC_INST_ID_,
+		p.CATEGORY_ AS TABLENAME
+		from
+		<include refid="tableName"></include>
+		f
+		left join
+		<include refid="ptableName"></include>
+		p
+		on f.PROC_DEF_ID_ = p.ID_
+		where 1=1
+		<if test="PROC_INST_ID_!= null and PROC_INST_ID_ != ''"><!-- 流程实例ID -->
+			and
+			f.PROC_INST_ID_ = #{PROC_INST_ID_}
+		</if>
+		limit 1
+	</select>
+
+	<!-- 已办任务列表 -->
+	<select id="hitaskdatalistPage" parameterType="page"
+		resultType="pd">
+		select
+		f.*,
+		p.NAME_ PNAME_,
+		p.DEPLOYMENT_ID_,
+		p.DGRM_RESOURCE_NAME_
+		from
+		(
+		select
+		n.*
+		from
+		<include refid="hitasktableName"></include>
+		n
+		where 1=1
+		<if test="pd.PROC_INST_ID_ != null and pd.PROC_INST_ID_ != ''"><!-- 启用精准检索 -->
+			and n.PROC_INST_ID_ = #{pd.PROC_INST_ID_}
+		</if>
+		<if test="pd.PROC_INST_ID_ == null or pd.PROC_INST_ID_ == ''"><!-- 不启用精准检索 -->
+			and (
+			n.ASSIGNEE_ = #{pd.USERNAME}
+			or
+			n.ASSIGNEE_ in ${pd.RNUMBERS}
+			)
+		</if>
+		group by n.EXECUTION_ID_
+		) f
+		left join
+		<include refid="ptableName"></include>
+		p
+		on f.PROC_DEF_ID_ = p.ID_
+		where 1=1
+		<if test="pd.keywords!= null and pd.keywords != ''"><!-- 关键词检索 -->
+			and
+			(
+			p.NAME_ LIKE CONCAT(CONCAT('%', #{pd.keywords}),'%')
+			or
+			f.NAME_
+			LIKE CONCAT(CONCAT('%', #{pd.keywords}),'%')
+			or
+			f.ASSIGNEE_ LIKE
+			CONCAT(CONCAT('%', #{pd.keywords}),'%')
+			)
+		</if>
+		<if test="pd.lastStart != null and pd.lastStart != ''"><!-- 开始时间检索 -->
+			and f.END_TIME_ &gt;= #{pd.lastStart}
+		</if>
+		<if test="pd.lastEnd != null and pd.lastEnd != ''"><!-- 结束时间检索 -->
+			and f.END_TIME_ &lt;= #{pd.lastEnd}
+		</if>
+		<if test="pd.PROC_INST_ID_ != null and pd.PROC_INST_ID_ != ''"><!-- 精准检索 -->
+			and f.PROC_INST_ID_ = #{pd.PROC_INST_ID_}
+		</if>
+		<if test="pd.PROC_TYPE != null and pd.PROC_TYPE != ''"><!-- 固定类型待办搜索 -->
+			and p.NAME_ = #{pd.PROC_TYPE}
+		</if>
+		<if test="pd.USERNAME != null and pd.USERNAME != ''"><!-- 办理人检索 -->
+			and
+			(
+			f.ASSIGNEE_ = #{pd.USERNAME}
+			or
+			f.ASSIGNEE_ in ${pd.RNUMBERS}
+			)
+		</if>
+		and f.END_TIME_ is not NULL
+		order by f.END_TIME_ desc
+	</select>
+
+	<!-- 流程变量列表 -->
+	<select id="varList" parameterType="pd" resultType="pd">
+		select
+		*
+		from
+		<include refid="vartableName"></include>
+		where 1=1
+		<if test="PROC_INST_ID_ != null and PROC_INST_ID_ != ''"><!-- 流程实例ID -->
+			and PROC_INST_ID_ = #{PROC_INST_ID_}
+			and TASK_ID_ is NULL
+		</if>
+	</select>
+
+	<!-- 历史任务节点列表关联历史流程变量表 -->
+	<select id="hiTaskList" parameterType="pd" resultType="pd">
+		select
+		ht.*,
+		hv.TEXT_
+		from
+		<include refid="hitinsttableName"></include>
+		ht
+		left join
+		<include refid="hivartableName"></include>
+		hv
+		on ht.TASK_ID_ = hv.TASK_ID_
+		where
+		ht.ASSIGNEE_ is not null
+		<if test="PROC_INST_ID_ != null and PROC_INST_ID_ != ''"><!-- 流程实例ID -->
+			and ht.PROC_INST_ID_ = #{PROC_INST_ID_}
+		</if>
+		order by ht.START_TIME_ DESC
+	</select>
+
+	<!-- 激活or挂起任务(指定某个任务) -->
+	<update id="onoffTask" parameterType="pd">
+		update
+		<include refid="tableName"></include>
+		set
+		SUSPENSION_STATE_ = #{STATUS}
+		<if test="ID_ != null and ID_ != ''"><!-- 通过流程实例ID挂起 -->
+			where ID_ = #{ID_}
+		</if>
+		<if test="PROC_INST_ID_ != null and PROC_INST_ID_ != ''"><!-- 通过流程实例PROC_INST_ID_挂起 -->
+			where PROC_INST_ID_ = #{PROC_INST_ID_}
+		</if>
+	</update>
+
+	<!-- 激活or挂起任务(挂起某类流程的所有实例) -->
+	<update id="onoffAllTask" parameterType="pd">
+		update
+		<include refid="tableName"></include>
+		set
+		SUSPENSION_STATE_ = #{STATUS}
+		where PROC_DEF_ID_ = #{ID_}
+	</update>
+
+
+</mapper>

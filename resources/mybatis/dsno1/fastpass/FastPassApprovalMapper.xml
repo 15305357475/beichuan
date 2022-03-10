@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.fh.mapper.dsno1.fastpass.FastPassApprovalMapper">
+
+	<!--表名 -->
+	<sql id="tableName">
+		cl_approval_process
+	</sql>
+
+	<!--历史流程参与者表 -->
+	<sql id="ahitableName">
+		ACT_HI_IDENTITYLINK
+	</sql>
+
+	<!-- 字段 -->
+	<sql id="Field">
+		id,
+		node,
+		process_id,
+		create_user,
+		create_suggest,
+		create_time,
+		approval_user,
+		approval_suggest,
+		approval_time,
+		status,
+		parent_node
+	</sql>
+
+	<!-- 字段值 -->
+	<sql id="FieldValue">
+		#{id},
+		#{node},
+		#{process_id},
+		#{create_user},
+		#{create_suggest},
+		#{create_time},
+		#{approval_user},
+		#{approval_suggest},
+		#{approval_time},
+		#{status},
+		#{parent_node}
+	</sql>
+
+	<!-- 新增 -->
+	<insert id="save" parameterType="pd">
+		insert into
+		<include refid="tableName"></include>
+		(
+		<include refid="Field"></include>
+		) values (
+		<include refid="FieldValue"></include>
+		)
+	</insert>
+
+	<!-- 删除 -->
+	<delete id="delete" parameterType="pd">
+		delete from
+		<include refid="tableName"></include>
+		where
+		id = #{id}
+	</delete>
+
+	<!-- 修改 -->
+	<update id="edit" parameterType="pd">
+		update
+		<include refid="tableName"></include>
+		set
+		id = #{id},
+		node = #{node},
+		process_id = #{process_id},
+		create_user = #{create_user},
+		create_suggest = #{create_suggest},
+		create_time = #{create_time},
+		approval_user = #{approval_user},
+		approval_suggest = #{approval_suggest},
+		approval_time = #{approval_time},
+		status = #{status},
+		parent_node= #{parent_node}
+		where
+		id = #{id}
+	</update>
+
+	<!-- 通过ID获取数据 -->
+	<select id="findById" parameterType="pd" resultType="pd">
+		select
+		<include refid="Field"></include>
+		from
+		<include refid="tableName"></include>
+		H
+		where 1=1
+		<if test="id != null and id != ''"><!-- 按状态检索 -->
+			and H.id=#{id}
+		</if>
+	</select><!--#{}里对应前端发来的键-->
+
+<!-- 通过process_id获取数据 -->
+	<select id="findByProcessId" parameterType="pd" resultType="pd">
+		select
+		<include refid="Field"></include>
+		from
+		<include refid="tableName"></include>
+		H
+		where 1=1
+		<if test="process_id != null and process_id != ''"><!-- 按状态检索 -->
+			and H.process_id=#{process_id}
+		</if>
+	</select>
+
+	<!-- 列表 -->
+	<select id="datalistPage" parameterType="page" resultType="pd">
+		select 
+		fp.process_id as process_id,
+		
+		fp.user_id,
+		fp.department,
+		fp.car_num,
+		fp.state,
+		fp.ex_company,
+		fp.product_name,
+		fp.measurement,
+		fp.weight,
+		fp.a_pile_of_shit,
+		fp.committime,
+		ap.id,
+		ap.node,
+		ap.process_id as process_id_ap,
+		ap.create_user,
+		ap.create_suggest,
+		ap.create_time,
+		ap.approval_user,
+		ap.approval_suggest,
+		ap.approval_time,
+		ap.`status`,
+		ap.parent_node,
+		od.`NAME`
+		from cl_fastpass fp
+		left join 
+		<include refid="tableName"></include> 
+		ap
+		on fp.process_id = ap.process_id
+		left join 
+		oa_department
+		od
+		on fp.department = od.DEPARTMENT_ID
+		where 1=1 
+		and fp.state != '0' and fp.state != '6'
+		<if test="pd.db != null and pd.db != ''"><!-- 待办检索条件 -->
+		and(
+			(
+				(ap.`status` = '1' and ap.approval_user LIKE CONCAT(CONCAT('%', #{pd.USERNAME}),'%')) 
+				or 
+				(ap.`status` = '3' and ap.create_user = #{pd.USERNAME})
+			)
+			and TO_DAYS(fp.committime)=TO_DAYS(NOW())
+			)
+		</if>
+		<if test="pd.yb != null and pd.yb != ''"><!-- 已办检索条件 -->
+		and (
+			(ap.`status` = '2' and ap.approval_user LIKE CONCAT(CONCAT('%', #{pd.USERNAME}),'%')) 
+			or 
+			(ap.`status` = '3' and ap.approval_user LIKE CONCAT(CONCAT('%', #{pd.USERNAME}),'%'))
+			)
+		</if>
+		order by fp.committime desc
+	</select>
+
+</mapper>

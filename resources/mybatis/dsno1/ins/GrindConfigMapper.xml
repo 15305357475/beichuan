@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.fh.mapper.dsno1.ins.GrindConfigMapper">
+	
+	<!--表名 -->
+	<sql id="tableName">
+		INS_GRINDCONFIG
+	</sql>
+	
+	<!--数据字典表名 -->
+	<sql id="dicTableName">
+		SYS_DICTIONARIES
+	</sql>
+	
+	<!-- 字段 -->
+	<sql id="Field">
+		f.LEVEL,	
+		f.DEPT,	
+		f.AREA,	
+		f.RESPONSIBLE_NAME,	
+		f.USER_ID,	
+		f.POSITION,	
+		f.PHONE,	
+		f.CONFIG_USER,	
+		f.CONFIG_DATE,	
+		f.GRINDCONFIG_ID
+	</sql>
+	
+	<!-- 字段用于新增 -->
+	<sql id="Field2">
+		LEVEL,	
+		DEPT,	
+		AREA,	
+		RESPONSIBLE_NAME,	
+		USER_ID,	
+		POSITION,	
+		PHONE,	
+		CONFIG_USER,	
+		CONFIG_DATE,	
+		GRINDCONFIG_ID
+	</sql>
+	
+	<!-- 字段值 -->
+	<sql id="FieldValue">
+		#{LEVEL},	
+		#{DEPT},	
+		#{AREA},	
+		#{RESPONSIBLE_NAME},	
+		#{USER_ID},	
+		#{POSITION},	
+		#{PHONE},	
+		#{CONFIG_USER},	
+		#{CONFIG_DATE},	
+		#{GRINDCONFIG_ID}
+	</sql>
+	
+	<!-- 新增-->
+	<insert id="save" parameterType="pd">
+		insert into 
+	<include refid="tableName"></include>
+		(
+	<include refid="Field2"></include>
+		) values (
+	<include refid="FieldValue"></include>
+		)
+	</insert>
+	
+	<!-- 删除-->
+	<delete id="delete" parameterType="pd">
+		delete from
+		<include refid="tableName"></include>
+		where 
+			GRINDCONFIG_ID = #{GRINDCONFIG_ID}
+	</delete>
+	
+	<!-- 修改 -->
+	<update id="edit" parameterType="pd">
+		update
+		<include refid="tableName"></include>
+		set 
+			LEVEL = #{LEVEL},
+			DEPT = #{DEPT},
+			AREA = #{AREA},
+			RESPONSIBLE_NAME = #{RESPONSIBLE_NAME},
+			USER_ID = #{USER_ID},
+			POSITION = #{POSITION},
+			PHONE = #{PHONE},
+			GRINDCONFIG_ID = GRINDCONFIG_ID
+		where 
+			GRINDCONFIG_ID = #{GRINDCONFIG_ID}
+	</update>
+	
+	<!-- 通过ID获取数据 -->
+	<select id="findById" parameterType="pd" resultType="pd">
+		select 
+		<include refid="Field"></include>
+		from 
+		<include refid="tableName"></include> f
+		where 
+			f.GRINDCONFIG_ID = #{GRINDCONFIG_ID}
+	</select>
+	
+	<!-- 列表 -->
+	<select id="datalistPage" parameterType="page" resultType="pd">
+		select
+		od.name as dept_name,
+		<include refid="Field"></include>
+		from 
+		<include refid="tableName"></include> f
+		left join oa_department od
+		on f.dept = od.department_id
+		where 1=1
+		<if test="pd.KEYWORDS != null and pd.KEYWORDS != ''"><!-- 关键词检索 -->
+			and
+				(
+					f.AREA LIKE CONCAT(CONCAT('%', #{pd.KEYWORDS}),'%')
+				)
+		</if>
+		<if test="pd.DEPT != null and pd.DEPT != ''"><!-- 部门检索 -->
+				and
+				(
+					f.DEPT = #{pd.DEPT}
+				)
+		</if>
+		<if test="pd.LEVEL != null and pd.LEVEL != ''"><!-- 网格级别检索 -->
+				and
+				(
+					f.LEVEL = #{pd.LEVEL}
+				)
+		</if>
+		order by f.LEVEL
+	</select>
+	
+	<!-- 列表(全部) -->
+	<select id="listAll" parameterType="pd" resultType="pd">
+		select
+		<include refid="Field"></include>
+		from 
+		<include refid="tableName"></include> f
+		 where 1=1
+		<if test="DEPT != null and DEPT != ''"><!-- 部门检索 -->
+			and
+			(
+			f.DEPT = #{DEPT}
+			)
+		</if>
+		order by f.LEVEL
+	</select>
+	
+	<!-- 批量删除 -->
+	<delete id="deleteAll" parameterType="String">
+		delete from
+		<include refid="tableName"></include>
+		where 
+			GRINDCONFIG_ID in
+		<foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+                 #{item}
+		</foreach>
+	</delete>
+	
+	
+</mapper>
